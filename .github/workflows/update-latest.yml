@@ -44,6 +44,11 @@ jobs:
               "title": e.find("a:title", ns).text,
               "published": e.find("a:published", ns).text,
               "channel_id": cid,
+              "recent": [
+                  {"id": x.find("yt:videoId", ns).text, "title": x.find("a:title", ns).text,
+                   "published": x.find("a:published", ns).text}
+                  for x in ET.fromstring(feed).findall("a:entry", ns)[:5]
+              ],
           }
           with open("latest.json", "w", encoding="utf-8") as f:
               f.write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
