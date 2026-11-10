@@ -66,6 +66,20 @@ h1{font-family:var(--head);font-weight:400;font-size:30px;line-height:1.2;margin
 .featured{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .featured .desc,.featured .tc{color:var(--bg);opacity:.75}
 
+/* 最新の動画 */
+.latest{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--fg);background:var(--surface);
+  border:1px solid var(--line);border-radius:10px;padding:12px;transition:transform .15s ease, box-shadow .15s ease}
+.latest:hover{transform:translateY(-2px);box-shadow:0 4px 0 var(--c1)}
+.latest:focus-visible{outline:3px solid var(--c1);outline-offset:3px}
+.lt-label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--c1)}
+.lt-label i{width:8px;height:8px;border-radius:50%;background:var(--c1)}
+.thumb{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:6px;overflow:hidden;background:var(--line);display:grid;place-items:center}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.play{position:relative;width:56px;height:40px;border-radius:10px;background:var(--c1);color:#fff;display:grid;place-items:center}
+.play svg{width:22px;height:22px}
+.lt-title{font-weight:700;font-size:15px;line-height:1.45;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lt-date{font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+
 footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
 @media (prefers-reduced-motion:reduce){.rec{animation:none}.clip{transition:none}}
 </style>
@@ -79,6 +93,13 @@ footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--mute
     <p class="bio" id="bio"></p>
     <div class="tags" id="tags"></div>
   </section>
+
+  <a class="latest" id="latest" href="https://www.youtube.com/@まっちlil_sushi_land/videos" target="_blank" rel="noopener">
+    <span class="lt-label"><i aria-hidden="true"></i>最新の動画</span>
+    <span class="thumb" id="lt-thumb"><span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span></span>
+    <span class="lt-title" id="lt-title">YouTubeで最新の動画をチェック</span>
+    <span class="lt-date" id="lt-date" hidden></span>
+  </a>
 
   <section class="tl" aria-label="リンク一覧">
     <div class="ruler" aria-hidden="true"><span>00:00</span><span>00:15</span><span>00:30</span><span>00:45</span><span>01:00</span></div>
@@ -125,6 +146,27 @@ document.getElementById('links').innerHTML = LINKS.map((l, i) => `
     <span class="txt"><span class="name">${esc(l.name)}</span><span class="desc">${esc(l.desc)}</span></span>
     <span class="tc">CLIP ${String(i + 1).padStart(2, '0')}</span>
   </a>`).join('');
+// 最新の動画(latest.json は GitHub が自動で更新する)
+fetch('latest.json', { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(v => {
+    if (!v || !/^[\w-]{11}$/.test(v.id)) return;
+    document.getElementById('latest').href = 'https://www.youtube.com/watch?v=' + v.id;
+    const img = new Image();
+    img.alt = '';
+    img.onerror = () => img.remove();
+    img.src = 'https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg';
+    document.getElementById('lt-thumb').prepend(img);
+    document.getElementById('lt-title').textContent = v.title || '最新の動画';
+    const d = new Date(v.published);
+    if (!isNaN(d)) {
+      const el = document.getElementById('lt-date');
+      el.textContent = d.toLocaleDateString('ja-JP') + ' 公開';
+      el.hidden = false;
+    }
+  })
+  .catch(() => {});
+
 document.getElementById('foot').textContent = `© ${new Date().getFullYear()} ${PROFILE.name}`;
 </script>
 
