@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HANDLE: "まっちlil_sushi_land"   # YouTubeの @ のあとの部分
-      CHANNEL_ID: ""                   # UCで始まるチャンネルID(空なら自動で調べる)
+      CHANNEL_ID: "UCEKjgB9nlstnR2O_eaGLDaw"   # UCで始まるチャンネルID(空なら自動で調べる)
     steps:
       - uses: actions/checkout@v4
 
@@ -34,7 +34,12 @@ jobs:
               if not m:
                   raise SystemExit("チャンネルIDが見つかりません。CHANNEL_ID に直接入れてください")
               cid = m.group(1)
-          feed = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + cid)
+          # UULF = 「動画」タブ(配信・ショートを除く通常の動画)だけの一覧
+          try:
+              feed = get("https://www.youtube.com/feeds/videos.xml?playlist_id=UULF" + cid[2:])
+          except Exception as err:
+              print("動画タブの一覧が取れないので全体の一覧を使います:", err)
+              feed = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + cid)
           ns = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
           e = ET.fromstring(feed).find("a:entry", ns)
           if e is None:
