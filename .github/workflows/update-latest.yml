@@ -12,7 +12,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     env:
-      HANDLE: "まっちlil_sushi_land"   # YouTubeの @ のあとの部分
+      HANDLE: "まっちmatchi_print"   # YouTubeの @ のあとの部分
       CHANNEL_ID: "UCEKjgB9nlstnR2O_eaGLDaw"   # UCで始まるチャンネルID(空なら自動で調べる)
     steps:
       - uses: actions/checkout@v4
